@@ -91,7 +91,7 @@ namespace RanepaSchedule.Services
                                     .InnerText;
                                 if (subject.IndexOf(')') != subject.Length - 1)
                                 {
-                                    subject = subject.Insert(subject.IndexOf(')') + 1, "\n");
+                                    subject = subject.Insert(subject.IndexOf(')') + 1, "\n\n");
                                 }
 
                                 scheduleOfDay.Subjects.Add(subject);
