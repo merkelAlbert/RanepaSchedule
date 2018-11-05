@@ -87,8 +87,14 @@ namespace RanepaSchedule.Services
                             //цикл по предметам в дне
                             for (int j = startIndex; j < endIndex; j++)
                             {
-                                scheduleOfDay.Subjects.Add(rows[j].Elements<TableCell>().ElementAt(_groupIndex)
-                                    .InnerText);
+                                var subject = rows[j].Elements<TableCell>().ElementAt(_groupIndex)
+                                    .InnerText;
+                                if (subject.IndexOf(')') != subject.Length - 1)
+                                {
+                                    subject = subject.Insert(subject.IndexOf(')') + 1, "\n");
+                                }
+
+                                scheduleOfDay.Subjects.Add(subject);
                                 scheduleOfDay.Times.Add(rows[j].Elements<TableCell>().ElementAt(2).InnerText);
                             }
 
