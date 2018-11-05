@@ -89,7 +89,7 @@ namespace RanepaSchedule.Services
                             {
                                 var subject = rows[j].Elements<TableCell>().ElementAt(_groupIndex)
                                     .InnerText;
-                                if (subject.IndexOf(')') != subject.Length - 1)
+                                if (subject.IndexOf(')') != subject.Length - 1 && subject.IndexOf(')') != -1)
                                 {
                                     subject = subject.Insert(subject.IndexOf(')') + 1, "\n\n");
                                 }
