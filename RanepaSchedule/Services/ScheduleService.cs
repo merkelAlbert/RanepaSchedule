@@ -78,19 +78,17 @@ namespace RanepaSchedule.Services
                         {
                             var startIndex = newDayIndexes[i] + 1;
                             var endIndex = newDayIndexes[i + 1] + 1;
-                            
+
                             var scheduleOfDay = new ScheduleModel();
                             scheduleOfDay.DayOfWeek = rows[startIndex]
                                 .Elements<TableCell>()
                                 .ElementAt(0).InnerText;
-                            
+
                             //цикл по предметам в дне
                             for (int j = startIndex; j < endIndex; j++)
                             {
-                                var subject = rows[j].Elements<TableCell>().ElementAt(_groupIndex)
-                                    .InnerText;
-                                //Console.WriteLine(j - startIndex + 1 + " " + subject);
-                                scheduleOfDay.Subjects.Add(subject);
+                                scheduleOfDay.Subjects.Add(rows[j].Elements<TableCell>().ElementAt(_groupIndex)
+                                    .InnerText);
                                 scheduleOfDay.Times.Add(rows[j].Elements<TableCell>().ElementAt(2).InnerText);
                             }
 
