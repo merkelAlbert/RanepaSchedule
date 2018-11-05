@@ -14,7 +14,7 @@ namespace RanepaSchedule.Controllers
         }
 
         [HttpGet]
-        [Route("Schedule")]
+        [Route("")]
         public async Task<IActionResult> GetSchedule()
         {
             return new JsonResult(await _scheduleService.GetSchedule());
