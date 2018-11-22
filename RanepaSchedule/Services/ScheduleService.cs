@@ -23,14 +23,12 @@ namespace RanepaSchedule.Services
             var indexes = new List<int>();
             int dayCellIndex = 1;
             indexes.Add(0);
-
-            var prevValue = rows[1].Elements<TableCell>().ElementAt(dayCellIndex).InnerText;
             for (int i = 2; i < rows.Count; i++)
             {
                 var currentValue = rows[i].Elements<TableCell>().ElementAt(dayCellIndex).InnerText;
-                if (int.Parse(currentValue) < int.Parse(prevValue))
+                
+                if (currentValue.Contains("1"))
                     indexes.Add(i - 1);
-                prevValue = currentValue;
             }
 
             indexes.Add(rows.Count - 1);
@@ -74,7 +72,7 @@ namespace RanepaSchedule.Services
                         var newDayIndexes = GetNewDayIndexes(rows);
 
                         //цикл по дням
-                        for (int i = 0; i < newDayIndexes.Count - 1; i++)
+                        for (int i = 0; i < newDayIndexes.Count-1; i++)
                         {
                             var startIndex = newDayIndexes[i] + 1;
                             var endIndex = newDayIndexes[i + 1] + 1;
