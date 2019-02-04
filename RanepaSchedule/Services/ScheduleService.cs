@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
+using RanepaSchedule.Extensions;
 using RanepaSchedule.Models;
+using Spire.Doc;
+using Spire.Doc.Collections;
+
 
 namespace RanepaSchedule.Services
 {
@@ -16,17 +17,17 @@ namespace RanepaSchedule.Services
         private const string Path = "schedule.doc";
         private const string Group = "ДГиМУ-15";
         private int _groupIndex;
-
+        
         //получаем строки новых дней
-        private List<int> GetNewDayIndexes(List<TableRow> rows)
+        private List<int> GetNewDayIndexes(RowCollection rows)
         {
             var indexes = new List<int>();
             int dayCellIndex = 1;
             indexes.Add(0);
             for (int i = 2; i < rows.Count; i++)
             {
-                var currentValue = rows[i].Elements<TableCell>().ElementAt(dayCellIndex).InnerText;
-                
+                var currentValue = rows[i].Cells[dayCellIndex].Paragraphs.GetText();
+
                 if (currentValue.Contains("1"))
                     indexes.Add(i - 1);
             }
@@ -52,52 +53,49 @@ namespace RanepaSchedule.Services
                         fs.Write(response, 0, response.Length);
                     }
 
-                    using (var document = WordprocessingDocument.Open(Path, false))
+                    var document = new Document(Path);
+                    var section = document.Sections[0];
+                    var table = section.Tables[0];
+                    var rows = table.Rows;
+
+                    //получаем нужный столбец
+                    for (int i = 0; i < rows[0].Cells.Count; i++)
                     {
-                        var body = document.MainDocumentPart.Document.Body;
-                        var table = body.Elements<Table>().First();
-                        var rows = table.Elements<TableRow>().ToList();
-
-                        //получаем нужный столбец
-                        for (int i = 0; i < rows[0].Elements<TableCell>().ToList().Count; i++)
+                        var cell = rows[0].Cells[i];
+                        var group = cell.Paragraphs.GetText().Replace(" ", String.Empty).ToLower();
+                        if (cell.Paragraphs.GetText().Replace(" ",String.Empty).ToLower() == Group.ToLower())
                         {
-                            var cell = rows[0].ElementAt(i);
-                            if (cell.InnerText.ToLower() == Group.ToLower())
-                            {
-                                _groupIndex = i - 1;
-                                break;
-                            }
+                            _groupIndex = i;
+                            break;
                         }
+                    }
 
-                        var newDayIndexes = GetNewDayIndexes(rows);
+                    var newDayIndexes = GetNewDayIndexes(rows);
 
-                        //цикл по дням
-                        for (int i = 0; i < newDayIndexes.Count-1; i++)
+                    //цикл по дням
+                    for (int i = 0; i < newDayIndexes.Count - 1; i++)
+                    {
+                        var startIndex = newDayIndexes[i] + 1;
+                        var endIndex = newDayIndexes[i + 1] + 1;
+
+                        var scheduleOfDay = new ScheduleModel();
+                        scheduleOfDay.DayOfWeek = rows[startIndex]
+                            .Cells[0].Paragraphs.GetText();
+
+                        //цикл по предметам в дне
+                        for (int j = startIndex; j < endIndex; j++)
                         {
-                            var startIndex = newDayIndexes[i] + 1;
-                            var endIndex = newDayIndexes[i + 1] + 1;
-
-                            var scheduleOfDay = new ScheduleModel();
-                            scheduleOfDay.DayOfWeek = rows[startIndex]
-                                .Elements<TableCell>()
-                                .ElementAt(0).InnerText;
-
-                            //цикл по предметам в дне
-                            for (int j = startIndex; j < endIndex; j++)
+                            var subject = rows[j].Cells[_groupIndex].Paragraphs.GetText();
+                            if (subject.IndexOf(')') != subject.Length - 1 && subject.IndexOf(')') != -1)
                             {
-                                var subject = rows[j].Elements<TableCell>().ElementAt(_groupIndex)
-                                    .InnerText;
-                                if (subject.IndexOf(')') != subject.Length - 1 && subject.IndexOf(')') != -1)
-                                {
-                                    subject = subject.Insert(subject.IndexOf(')') + 1, "\n\n");
-                                }
-
-                                scheduleOfDay.Subjects.Add(subject);
-                                scheduleOfDay.Times.Add(rows[j].Elements<TableCell>().ElementAt(2).InnerText);
+                                subject = subject.Insert(subject.IndexOf(')') + 1, "\n\n");
                             }
 
-                            schedule.Add(scheduleOfDay);
+                            scheduleOfDay.Subjects.Add(subject);
+                            scheduleOfDay.Times.Add(rows[j].Cells[2].Paragraphs.GetText());
                         }
+
+                        schedule.Add(scheduleOfDay);
                     }
 
                     return schedule;

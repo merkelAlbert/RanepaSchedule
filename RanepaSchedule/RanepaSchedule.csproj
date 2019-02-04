@@ -9,12 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="wwwroot\"/>
+        <Folder Include="wwwroot\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="2.8.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6"/>
+        <PackageReference Include="FreeSpire.Doc" Version="7.1.13" />
+        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Spire.Doc, Version=7.1.13.41320, Culture=neutral, PublicKeyToken=663f351905198cb3">
+        <HintPath>..\..\..\..\.nuget\packages\freespire.doc\7.1.13\lib\netstandard2.0\Spire.Doc.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
